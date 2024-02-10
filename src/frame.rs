@@ -68,22 +68,5 @@ impl CanFrame {
 }
 
 
-#[derive(Debug, Clone)]
-pub enum CanError {
-    #[allow(unused)]
-    Io(Arc<std::io::Error>),
-    #[allow(unused)]
-    Disconnect(String),
-    #[allow(unused)]
-    Can(u64),
-}
+pub type CanError = u64;
 
-impl CanError {
-    pub fn erno(&self) -> u64 {
-        match &self {
-            CanError::Io(_) => u64::MAX,
-            CanError::Disconnect(_) => u64::MAX,
-            CanError::Can(can_error) => *can_error,
-        }
-    }
-}
