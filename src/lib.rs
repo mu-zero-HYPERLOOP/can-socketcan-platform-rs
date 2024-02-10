@@ -1,4 +1,4 @@
-use std::{mem, sync::Arc};
+use std::mem;
 
 use frame::{CanError, CanFrame};
 use libc::{c_int, c_void, can_frame, read, sa_family_t, sockaddr_can, write};
@@ -43,7 +43,7 @@ impl CanSocket {
             libc::close(self.fd);
         }
     }
-    pub fn receive(&self) -> Result<CanFrame, CanError> {
+    pub fn receive(&self) -> Result<Result<CanFrame, CanError>, std::io::Error> {
         let mut frame: can_frame = unsafe { mem::zeroed() };
         let n = mem::size_of::<can_frame>();
 
@@ -52,16 +52,16 @@ impl CanSocket {
         if rd as usize == n {
             // parse can_frame into CanFrame
             if frame.can_id & CAN_ERR_FLAG != 0 {
-                return Err(CanError::Can(unsafe { std::mem::transmute(frame.data) }));
+                return Ok(Err(CanError::Can(unsafe { std::mem::transmute(frame.data) })));
             } else {
-                Ok(frame_from_socket_can_frame(&frame))
+                Ok(Ok(frame_from_socket_can_frame(&frame)))
             }
         } else {
-            Err(CanError::Io(Arc::new(std::io::Error::last_os_error())))
+            Err(std::io::Error::last_os_error())
         }
     }
 
-    pub fn transmit(&self, frame: &CanFrame) -> Result<(), CanError> {
+    pub fn transmit(&self, frame: &CanFrame) -> Result<(), std::io::Error> {
         let fd = self.fd;
         let canframe = frame_to_socket_can_frame(frame);
 
@@ -76,7 +76,7 @@ impl CanSocket {
         if ret as usize == mem::size_of::<can_frame>() {
             Ok(())
         } else {
-            Err(CanError::Io(Arc::new(std::io::Error::last_os_error())))
+            Err(std::io::Error::last_os_error())
         }
     }
 }
