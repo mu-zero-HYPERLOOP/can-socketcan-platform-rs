@@ -10,12 +10,12 @@ pub use libc::{
 pub mod frame;
 
 #[derive(Clone)]
-struct CanSocket {
+pub struct CanSocket {
     fd: c_int,
 }
 
 impl CanSocket {
-    fn open(ifname: &str) -> Result<CanSocket, std::io::Error> {
+    pub fn open(ifname: &str) -> Result<CanSocket, std::io::Error> {
         let ifindex = nix::net::if_::if_nametoindex(ifname)?;
         let mut addr: sockaddr_can = unsafe { mem::zeroed() };
         addr.can_family = AF_CAN as sa_family_t;
@@ -38,12 +38,12 @@ impl CanSocket {
             Ok(CanSocket { fd })
         }
     }
-    fn close(&mut self) {
+    pub fn close(&mut self) {
         unsafe {
             libc::close(self.fd);
         }
     }
-    fn receive(&self) -> Result<CanFrame, CanError> {
+    pub fn receive(&self) -> Result<CanFrame, CanError> {
         let mut frame: can_frame = unsafe { mem::zeroed() };
         let n = mem::size_of::<can_frame>();
 
@@ -61,7 +61,7 @@ impl CanSocket {
         }
     }
 
-    fn transmit(&self, frame: &CanFrame) -> Result<(), CanError> {
+    pub fn transmit(&self, frame: &CanFrame) -> Result<(), CanError> {
         let fd = self.fd;
         let canframe = frame_to_socket_can_frame(frame);
 
@@ -111,42 +111,4 @@ pub fn frame_to_socket_can_frame(frame: &CanFrame) -> can_frame {
     canframe.can_dlc = frame.get_dlc();
     canframe.data = frame.get_data_8u8();
     canframe
-}
-
-pub struct OwnedCanSocket {
-    socket: CanSocket,
-}
-
-pub struct CanSocketRef {
-    socket: CanSocket,
-}
-
-impl OwnedCanSocket {
-    pub fn open(ifname: &str) -> Result<Self, std::io::Error> {
-        Ok(OwnedCanSocket {
-            socket: CanSocket::open(ifname)?,
-        })
-    }
-
-    pub fn as_ref(&self) -> CanSocketRef {
-        CanSocketRef {
-            socket: self.socket.clone(),
-        }
-    }
-}
-
-impl CanSocketRef {
-    pub fn receive(&self) -> Result<CanFrame, CanError> {
-        self.socket.receive()
-    }
-
-    pub fn transmit(&self, frame: &CanFrame) -> Result<(), CanError> {
-        self.socket.transmit(frame)
-    }
-}
-
-impl Drop for OwnedCanSocket {
-    fn drop(&mut self) {
-        self.socket.close();
-    }
 }
