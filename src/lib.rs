@@ -52,7 +52,7 @@ impl CanSocket {
         if rd as usize == n {
             // parse can_frame into CanFrame
             if frame.can_id & CAN_ERR_FLAG != 0 {
-                return Ok(Err(CanError::Can(unsafe { std::mem::transmute(frame.data) })));
+                return Ok(Err(unsafe { std::mem::transmute(frame.data) }));
             } else {
                 Ok(Ok(frame_from_socket_can_frame(&frame)))
             }

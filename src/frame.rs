@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 #[derive(Debug, Clone)]
 pub struct CanFrame {
     id: u32,
