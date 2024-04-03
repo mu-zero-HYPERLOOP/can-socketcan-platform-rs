@@ -1,4 +1,5 @@
 #[derive(Debug, Clone)]
+#[repr(C)]
 pub struct CanFrame {
     id: u32,
     dlc: u8,
