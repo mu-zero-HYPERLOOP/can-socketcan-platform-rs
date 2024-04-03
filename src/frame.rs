@@ -1,5 +1,6 @@
-#[derive(Debug, Clone)]
-#[repr(C)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CanFrame {
     id: u32,
     dlc: u8,
