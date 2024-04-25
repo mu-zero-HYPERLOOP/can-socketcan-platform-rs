@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+canzero-common = { git = "https://github.com/mu-zero-HYPERLOOP/canzero-common.git" }
 libc = {version = "0.2.149"}
 nix = {version = "0.27.1", features = ["net"] }
 serde = { version = "1.0.197", features = ["derive", "serde_derive"] }
