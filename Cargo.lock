@@ -27,7 +27,7 @@ dependencies = [
 [[package]]
 name = "canzero-common"
 version = "0.1.0"
-source = "git+https://github.com/mu-zero-HYPERLOOP/canzero-common.git#9496f5f45e47f601942e0819c8bae5f3ce1f6861"
+source = "git+https://github.com/mu-zero-HYPERLOOP/canzero-common.git#9670fcf026b826e8092041c95b74c3dbc361cc3e"
 dependencies = [
  "serde",
 ]
