@@ -81,7 +81,7 @@ impl CanSocket {
 }
 
 pub fn frame_from_socket_can_frame(frame: &can_frame) -> CanFrame {
-    let ide = frame.can_id & CAN_EFF_FLAG != 0;
+    let ide = (frame.can_id & CAN_EFF_FLAG) != 0;
     let id = if ide {
         frame.can_id & CAN_EFF_MASK
     } else {
@@ -89,7 +89,8 @@ pub fn frame_from_socket_can_frame(frame: &can_frame) -> CanFrame {
     };
     CanFrame::new(
         id,
-        frame.can_id & CAN_RTR_FLAG != 0,
+        false,
+        // (frame.can_id & CAN_RTR_FLAG) != 0,
         ide,
         frame.can_dlc,
         u64::from_le_bytes(frame.data),
@@ -104,9 +105,9 @@ pub fn frame_to_socket_can_frame(frame: &CanFrame) -> can_frame {
     } else {
         canframe.can_id |= frame.get_id() & CAN_EFF_MASK;
     }
-    if frame.get_rtr_flag() {
-        canframe.can_id |= CAN_RTR_FLAG;
-    }
+    // if frame.get_rtr_flag() {
+    //     canframe.can_id |= CAN_RTR_FLAG;
+    // }
     canframe.can_dlc = frame.get_dlc();
     canframe.data = frame.get_data_8u8();
     canframe
