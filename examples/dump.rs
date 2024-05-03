@@ -1,14 +1,13 @@
-use can_socketcan_platform_rs::OwnedCanSocket;
+use canzero_common::TNetworkFrame;
+use canzero_socketcan::socket_can::SocketCan;
 
-fn main() {
-    let can_adapter = OwnedCanSocket::open("can0").expect("failed to connect to can0");
+
+#[tokio::main]
+async fn main() {
+    let socketcan = SocketCan::connect().await.unwrap();
 
     loop {
-        match can_adapter.as_ref().receive() {
-            Ok(frame) => {
-                println!("{frame:?}");
-            }
-            Err(error) => println!("{error:?}"),
-        }
+        let frame : TNetworkFrame = socketcan.recv().await.unwrap();
+        println!("{frame:?}");
     }
 }

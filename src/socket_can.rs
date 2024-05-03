@@ -2,6 +2,7 @@ use std::time::Instant;
 
 use canzero_common::{NetworkFrame, TNetworkFrame};
 use color_print::cprintln;
+use interfaces::Interface;
 use tokio::sync::mpsc;
 
 use crate::can_socket::CanSocket;
@@ -13,10 +14,18 @@ pub struct SocketCan {
 }
 
 impl SocketCan {
-    pub async fn connect(buses: &[&str]) -> std::io::Result<Self> {
-        let mut sockets : Vec<CanSocket> = vec![];
-        for bus in buses {
-            sockets.push(CanSocket::open(bus)?);
+    pub async fn connect() -> std::io::Result<Self> {
+        let mut sockets: Vec<CanSocket> = vec![];
+        let mut ifnames: Vec<String> = vec![];
+        for interface in Interface::get_all().unwrap() {
+            let ifname = &interface.name;
+            if ifname.starts_with("can") {
+                ifnames.push(ifname.clone());
+            }
+        }
+        ifnames.sort();
+        for ifname in ifnames {
+            sockets.push(CanSocket::open(&ifname)?);
         }
 
         let (tx, rx) = mpsc::channel(16);
@@ -42,12 +51,16 @@ impl SocketCan {
                             let tframe = TNetworkFrame::now(start_of_run, frame);
 
                             if let Err(_) = tx.send(tframe).await {
-                                cprintln!("<red>Failed to send on SocketCan [bus_id = {bus_id:?}]</red>");
+                                cprintln!(
+                                    "<red>Failed to send on SocketCan [bus_id = {bus_id:?}]</red>"
+                                );
                             }
                         });
                     }
                     Err(_) => {
-                        cprintln!("<red>Failed to receive from SocketCAN [bus_id = {bus_id:?}]</red>")
+                        cprintln!(
+                            "<red>Failed to receive from SocketCAN [bus_id = {bus_id:?}]</red>"
+                        )
                     }
                 }
             });
@@ -58,8 +71,7 @@ impl SocketCan {
         })
     }
     pub async fn send(&self, frame: &TNetworkFrame) -> std::io::Result<()> {
-        self.sockets[frame.value.bus_id as usize]
-            .transmit(&frame.value.can_frame)
+        self.sockets[frame.value.bus_id as usize].transmit(&frame.value.can_frame)
     }
     pub async fn recv(&self) -> Option<TNetworkFrame> {
         self.rx.lock().await.recv().await

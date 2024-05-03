@@ -12,3 +12,4 @@ libc = {version = "0.2.149"}
 nix = {version = "0.27.1", features = ["net"] }
 serde = { version = "1.0.197", features = ["derive", "serde_derive"] }
 color-print = "0.3.6"
+interfaces = "0.0.9"
