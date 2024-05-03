@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 canzero-common = { git = "https://github.com/mu-zero-HYPERLOOP/canzero-common.git" }
+tokio = { version = "1.36.0", features = ["full"] }
 libc = {version = "0.2.149"}
 nix = {version = "0.27.1", features = ["net"] }
 serde = { version = "1.0.197", features = ["derive", "serde_derive"] }
+color-print = "0.3.6"
