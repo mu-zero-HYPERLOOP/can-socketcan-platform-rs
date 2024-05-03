@@ -1,5 +1,5 @@
 [package]
-name = "can-socketcan-platform-rs"
+name = "canzero-socketcan"
 version = "0.1.0"
 edition = "2021"
 
